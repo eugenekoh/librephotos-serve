@@ -3,7 +3,6 @@ packaging==20.9
 pandas==1.2.3
 loguru==0.5.3
 numpy==1.20.1
-oscar.egg==info
 opencv_python==4.5.1.48
 detectron2.egg==info
 torch==1.8.0
