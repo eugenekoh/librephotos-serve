@@ -15,6 +15,7 @@ def generate_caption():
     img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
     return jsonify(pic.generate(img, request.form['personality']))
 
+
 @app.route('/predict_emotion', methods=['POST'])
 def predict_emotion():
     # get image
@@ -23,5 +24,6 @@ def predict_emotion():
     img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
     return jsonify(fer.predict_emotion(img))
 
+
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')
