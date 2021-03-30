@@ -1,4 +1,5 @@
 import pic
+import sic
 import fer
 from flask import Flask, jsonify, request
 import cv2
@@ -7,8 +8,8 @@ import numpy as np
 app = Flask(__name__)
 
 
-@app.route('/generate_caption', methods=['POST'])
-def generate_caption():
+@app.route('/generate_pic', methods=['POST'])
+def generate_pic():
     # get image
     file = request.files['image'].read()
     npimg = np.fromstring(file, np.uint8)
@@ -16,14 +17,23 @@ def generate_caption():
     return jsonify(pic.generate(img, request.form['personality']))
 
 
+@app.route('/generate_sic', methods=['POST'])
+def generate_sic():
+    # get image
+    file = request.files['image'].read()
+    npimg = np.frombuffer(file, np.uint8)
+    img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+    return jsonify(sic.generate(img))
+
+
 @app.route('/predict_emotion', methods=['POST'])
 def predict_emotion():
     # get image
     file = request.files['image'].read()
-    npimg = np.fromstring(file, np.uint8)
+    npimg = np.frombuffer(file, np.uint8)
     img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
     return jsonify(fer.predict_emotion(img))
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)

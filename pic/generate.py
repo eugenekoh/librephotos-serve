@@ -1,35 +1,11 @@
-import json
-import os
-from types import SimpleNamespace
-
 import torch
 from loguru import logger
 from oscar.modeling.modeling_bert import BertForPersonalityImageCaptioning
-from transformers.pytorch_transformers import BertConfig, BertTokenizer
 
 from pic.py_bottom_up import get_image_features
-from pic.utils import restore_training_settings, CaptionTensorizer
+from pic.utils import CaptionTensorizer, init
 
-ARGS_FILE = './pic/args.json'
-with open(ARGS_FILE) as f:
-    args = SimpleNamespace(**json.load(f))
-
-args.device = 'cpu'
-args.n_gpu = 0
-
-# Load pretrained model and tokenizer
-config_class, model_class, tokenizer_class = BertConfig, BertForPersonalityImageCaptioning, BertTokenizer
-checkpoint = args.eval_model_dir
-assert os.path.isdir(checkpoint)
-config = config_class.from_pretrained(checkpoint)
-config.output_hidden_states = args.output_hidden_states
-tokenizer = tokenizer_class.from_pretrained(checkpoint)
-model = model_class.from_pretrained(checkpoint, config=config)
-model.to(args.device)
-
-# inference and evaluation
-args = restore_training_settings(args)
-
+args, model, tokenizer = init(BertForPersonalityImageCaptioning, "./pic/args.json")
 # setup tensorizer
 tensorizer = CaptionTensorizer(tokenizer, args.max_img_seq_length,
                                args.max_seq_length, args.max_seq_a_length, args.mask_prob, args.max_masked_tokens)
@@ -64,7 +40,7 @@ def generate(img, personality):
                   'add_od_labels': args.add_od_labels, 'od_labels_start_posid': args.max_seq_a_length,
 
                   # hyperparameters of beam search
-                  'max_length': 40, 
+                  'max_length': 20,
                   'num_beams': 5,
                   "temperature": args.temperature,
                   "top_k": 0,
@@ -81,7 +57,7 @@ def generate(img, personality):
         conf = torch.exp(outputs[1])[0]
 
         decoded_cap = tokenizer.decode(cap.tolist(), skip_special_tokens=True)
-        result = {'caption': decoded_cap, 'confidence': conf.item(), 'personality' : personality}
-        logger.info("finished inference " + str(result))
+        result = {'caption': decoded_cap, 'confidence': conf.item(), 'personality': personality}
+        logger.info("finished personality captions inference " + str(result))
 
     return result

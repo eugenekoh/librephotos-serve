@@ -1,7 +1,34 @@
-import torch
-from loguru import logger
+import json
+import os
 import os.path as op
 import random
+from types import SimpleNamespace
+
+import torch
+from loguru import logger
+from transformers.pytorch_transformers import BertConfig, BertTokenizer
+
+
+def init(model_class, args_file):
+    with open(args_file) as f:
+        args = SimpleNamespace(**json.load(f))
+    args.device = 'cpu'
+    args.n_gpu = 0
+
+    # Load pretrained model and tokenizer
+    config_class, tokenizer_class = BertConfig, BertTokenizer
+    checkpoint = args.eval_model_dir
+    assert os.path.isdir(checkpoint)
+    config = config_class.from_pretrained(checkpoint)
+    config.output_hidden_states = args.output_hidden_states
+    tokenizer = tokenizer_class.from_pretrained(checkpoint)
+    model = model_class.from_pretrained(checkpoint, config=config)
+    model.to(args.device)
+
+    # inference and evaluation
+    args = restore_training_settings(args)
+
+    return args, model, tokenizer
 
 
 def restore_training_settings(args):

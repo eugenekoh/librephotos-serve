@@ -10,7 +10,8 @@ from detectron2.modeling.roi_heads.fast_rcnn import (
 from loguru import logger
 
 # Load VG Classes
-butd_dir = '/dependencies/py-bottom-up-attention/demo/'
+#butd_dir = '/dependencies/py-bottom-up-attention/demo/'
+butd_dir = '/home/eugene/Documents/workspace/py-bottom-up-attention/demo/'
 data_path = os.path.join(butd_dir, 'data/genome/1600-400-20')
 
 vg_classes = []
