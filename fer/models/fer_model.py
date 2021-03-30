@@ -1,14 +1,16 @@
-
-from fer.models.masking import masking
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+from fer.models.masking import masking
+
 
 def accuracy(outputs, labels):
     # torch.max outputs max_value, max_indices => here we only care about indices
     _, preds = torch.max(outputs, dim=1)
     # .item() gets a number from a tensor containing a single value
-    return torch.tensor(torch.sum(preds == labels).item()/len(preds))
+    return torch.tensor(torch.sum(preds == labels).item() / len(preds))
+
 
 class FERBase(nn.Module):
 
@@ -19,7 +21,7 @@ class FERBase(nn.Module):
         out = self(images, fv)
         # calculates loss compare to real labels using cross entropy
         loss = F.cross_entropy(out, labels)
-        #acc = accuracy(out, labels)
+        # acc = accuracy(out, labels)
         return loss  # , acc
 
     # this takes in batch from validation dl
@@ -61,19 +63,19 @@ class FERModel(FERBase):
     def __init__(self, in_chnls, num_cls):
         super().__init__()
 
-        self.conv1 = conv_block(in_chnls, 64, pool=True)           # 64x24x24
-        self.conv2 = conv_block(64, 128, pool=True)                # 128x12x12
+        self.conv1 = conv_block(in_chnls, 64, pool=True)  # 64x24x24
+        self.conv2 = conv_block(64, 128, pool=True)  # 128x12x12
         self.resnet1 = nn.Sequential(conv_block(128, 128), conv_block(
-            128, 128))    # Resnet layer 1: includes 2 conv2d
+            128, 128))  # Resnet layer 1: includes 2 conv2d
 
-        self.conv3 = conv_block(128, 256, pool=True)       # 256x6x6
-        self.conv4 = conv_block(256, 512, pool=True)       # 512x3x3
+        self.conv3 = conv_block(128, 256, pool=True)  # 256x6x6
+        self.conv4 = conv_block(256, 512, pool=True)  # 512x3x3
         self.resnet2 = nn.Sequential(conv_block(512, 512), conv_block(
-            512, 512))    # Resnet layer 2: includes 2 conv2d
+            512, 512))  # Resnet layer 2: includes 2 conv2d
 
         self.mask1 = masking(128, 128, depth=2)
-        #self.mask2 = masking(128, 128, depth=2)
-        #self.mask3 = masking(256, 256, depth=1)
+        # self.mask2 = masking(128, 128, depth=2)
+        # self.mask3 = masking(256, 256, depth=1)
 
         self.dropout = nn.Dropout(0.2)
         self.flatten = nn.Sequential(nn.MaxPool2d(3),
@@ -81,42 +83,42 @@ class FERModel(FERBase):
         self.fc = nn.Linear(1808, 512)
         self.classifier = nn.Linear(1808, num_cls)
         self.classifier_512 = nn.Linear(512, num_cls)
-#         self.classifier = nn.Sequential(nn.MaxPool2d(3),
-#                                         nn.Flatten(),
-#                                         nn.Linear(512, num_cls))    # num_cls
+
+    #         self.classifier = nn.Sequential(nn.MaxPool2d(3),
+    #                                         nn.Flatten(),
+    #                                         nn.Linear(512, num_cls))    # num_cls
 
     def forward(self, xb, fv):
+        # print(xb.type())
+        # print("xb: ", xb.size())
 
-        #print(xb.type())
-        #print("xb: ", xb.size())
-
-        #print(fv.size())
+        # print(fv.size())
 
         out = self.conv1(xb)
-        #print(out.size())
+        # print(out.size())
 
         out = self.conv2(out)
-        #print(out.size())
+        # print(out.size())
         out = self.resnet1(out) + out
-        #print(out.size())
+        # print(out.size())
 
         m = self.mask1(out)
-        #print("m is ", m.size())
-        out = out * (1+m)
-        #print(out.size())
+        # print("m is ", m.size())
+        out = out * (1 + m)
+        # print(out.size())
 
         out = self.conv3(out)
-        #print(out.size())
+        # print(out.size())
         out = self.conv4(out)
-        #print(out.size())
+        # print(out.size())
         out = self.resnet2(out) + out
-        #print(out.size())
+        # print(out.size())
         out = self.flatten(out)
-        #print("penul out: ", out.type())
+        # print("penul out: ", out.type())
 
         out = torch.cat((out, fv), 1)
-        #print("final out: ", out.size())
+        # print("final out: ", out.size())
 
         out = self.fc(out)
-        #out = self.dropout(out)
+        # out = self.dropout(out)
         return self.classifier_512(out)

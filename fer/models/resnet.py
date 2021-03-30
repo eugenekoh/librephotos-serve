@@ -1,8 +1,7 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from .utils import load_state_dict_from_url
 
+from .utils import load_state_dict_from_url
 
 __all__ = [
     "ResNet",
@@ -16,7 +15,6 @@ __all__ = [
     "wide_resnet50_2",
     "wide_resnet101_2",
 ]
-
 
 model_urls = {
     "resnet18": "https://download.pytorch.org/models/resnet18-5c106cde.pth",
@@ -55,15 +53,15 @@ class BasicBlock(nn.Module):
     __constants__ = ["downsample"]
 
     def __init__(
-        self,
-        inplanes,
-        planes,
-        stride=1,
-        downsample=None,
-        groups=1,
-        base_width=64,
-        dilation=1,
-        norm_layer=None,
+            self,
+            inplanes,
+            planes,
+            stride=1,
+            downsample=None,
+            groups=1,
+            base_width=64,
+            dilation=1,
+            norm_layer=None,
     ):
         super(BasicBlock, self).__init__()
         if norm_layer is None:
@@ -105,15 +103,15 @@ class Bottleneck(nn.Module):
     __constants__ = ["downsample"]
 
     def __init__(
-        self,
-        inplanes,
-        planes,
-        stride=1,
-        downsample=None,
-        groups=1,
-        base_width=64,
-        dilation=1,
-        norm_layer=None,
+            self,
+            inplanes,
+            planes,
+            stride=1,
+            downsample=None,
+            groups=1,
+            base_width=64,
+            dilation=1,
+            norm_layer=None,
     ):
         super(Bottleneck, self).__init__()
         if norm_layer is None:
@@ -155,16 +153,16 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
     def __init__(
-        self,
-        block,
-        layers,
-        num_classes=1000,
-        zero_init_residual=False,
-        groups=1,
-        width_per_group=64,
-        replace_stride_with_dilation=None,
-        norm_layer=None,
-        in_channels=3,
+            self,
+            block,
+            layers,
+            num_classes=1000,
+            zero_init_residual=False,
+            groups=1,
+            width_per_group=64,
+            replace_stride_with_dilation=None,
+            norm_layer=None,
+            in_channels=3,
     ):
         super(ResNet, self).__init__()
         if norm_layer is None:
@@ -186,9 +184,9 @@ class ResNet(nn.Module):
         self.base_width = width_per_group
 
         # NOTE: strictly set the in_channels = 3 to load the pretrained model
-        
-        #BEN: due to difference in channels, we need to change number of channels from 3 to 1. Hence, we changed 3 to 1 in the below statement.
-        
+
+        # BEN: due to difference in channels, we need to change number of channels from 3 to 1. Hence, we changed 3 to 1 in the below statement.
+
         self.conv1 = nn.Conv2d(
             1, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False
         )

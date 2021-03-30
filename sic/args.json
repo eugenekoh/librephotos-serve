@@ -45,7 +45,7 @@
   "find_lr": false,
   "global_step_offset": 0,
   "tensorboard_log_dir": "runs/pic",
-  "eval_model_dir": "pic/model",
+  "eval_model_dir": "sic/checkpoint-29-66420",
   "max_gen_length": 40,
   "output_hidden_states": false,
   "num_return_sequences": 1,

@@ -1,9 +1,10 @@
-import torch
-from torchvision import transforms
-from skimage.feature import hog
-from fer.models import FERModel
 import cv2
+import torch
 from loguru import logger
+from skimage.feature import hog
+from torchvision import transforms
+
+from fer.models import FERModel
 
 MODEL_PATH = './fer/ResMasking_V7.2.pth'
 device = torch.device('cpu')

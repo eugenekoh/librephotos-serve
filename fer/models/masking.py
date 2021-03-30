@@ -1,9 +1,9 @@
 import traceback
+
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
-from .resnet import conv1x1, conv3x3, BasicBlock, Bottleneck
+from .resnet import conv1x1, BasicBlock, Bottleneck
 
 
 def up_pooling(in_channels, out_channels, kernel_size=2, stride=2):
@@ -82,7 +82,7 @@ class Masking4(nn.Module):
         self.conv6 = block(filters[1], filters[0], downsample=conv1x1(filters[1], filters[0], 1))
         """
 
-        self.up_pool5 = up_pooling(filters[4], filters[3], kernel_size=3) #BEN: added Kernel size myself
+        self.up_pool5 = up_pooling(filters[4], filters[3], kernel_size=3)  # BEN: added Kernel size myself
         self.conv5 = block(filters[4], filters[3], downsample=self.downsample5)
         self.up_pool6 = up_pooling(filters[3], filters[2])
         self.conv6 = block(filters[3], filters[2], downsample=self.downsample6)
@@ -122,8 +122,7 @@ class Masking4(nn.Module):
         # print("p3 size is: ", p3.size())
         x4 = self.conv4(p3)
         # print("x4 size is: ", x4.size())
-         
-        
+
         x5 = self.up_pool5(x4)
         # print("x5 size here is: ", x5.size()) 
         x5 = torch.cat([x5, x3], dim=1)
@@ -132,24 +131,24 @@ class Masking4(nn.Module):
         # print("x5 size is: ", x5.size())
 
         x6 = self.up_pool6(x5)
-        #print("x6 size here is: ", x6.size())
+        # print("x6 size here is: ", x6.size())
         x6 = torch.cat([x6, x2], dim=1)
-        #print("x6 size here is: ", x6.size())
+        # print("x6 size here is: ", x6.size())
         x6 = self.conv6(x6)
-        #print("x6 size is: ", x6.size())
+        # print("x6 size is: ", x6.size())
 
         x7 = self.up_pool7(x6)
-        #print("x7 size here is: ", x7.size())
+        # print("x7 size here is: ", x7.size())
         x7 = torch.cat([x7, x1], dim=1)
-        #print("x7 size here is: ", x7.size())
+        # print("x7 size here is: ", x7.size())
         x7 = self.conv7(x7)
-        #print("x7 size is: ", x7.size())
+        # print("x7 size is: ", x7.size())
 
         x8 = self.conv8(x7)
-        #print("x8 size is: ", x8.size())
+        # print("x8 size is: ", x8.size())
 
         output = torch.softmax(x8, dim=1)
-        #print("output size is: ", output.size())
+        # print("output size is: ", output.size())
         # output = torch.sigmoid(x8)
         return output
 
@@ -205,8 +204,9 @@ class Masking3(nn.Module):
         self.conv6 = block(filters[1], filters[0], downsample=conv1x1(filters[1], filters[0], 1))
         """
 
-        self.up_pool4 = up_pooling(filters[3], filters[2], kernel_size=2) #BEN: added Kernel size myself. Depends on no. of pixels, may need
-                                                                          # to adjust kernel size to 2 or 3.                                  
+        self.up_pool4 = up_pooling(filters[3], filters[2],
+                                   kernel_size=2)  # BEN: added Kernel size myself. Depends on no. of pixels, may need
+        # to adjust kernel size to 2 or 3.
         self.conv4 = block(filters[3], filters[2], downsample=self.downsample4)
         self.up_pool5 = up_pooling(filters[2], filters[1])
         self.conv5 = block(filters[2], filters[1], downsample=self.downsample5)
@@ -234,12 +234,12 @@ class Masking3(nn.Module):
         x1 = self.conv1(x)
         p1 = self.down_pooling(x1)
         x2 = self.conv2(p1)
-        #print("x2 shape here is: ", x2.size())
+        # print("x2 shape here is: ", x2.size())
         p2 = self.down_pooling(x2)
         x3 = self.conv3(p2)
 
         x4 = self.up_pool4(x3)
-        #print("x4 shape here is: ", x4.size())
+        # print("x4 shape here is: ", x4.size())
         x4 = torch.cat([x4, x2], dim=1)
 
         x4 = self.conv4(x4)
@@ -291,7 +291,7 @@ class Masking2(nn.Module):
         self.conv3 = block(filters[2], filters[1], downsample=conv1x1(filters[2], filters[1], 1))
         self.conv4 = block(filters[1], filters[0], downsample=conv1x1(filters[1], filters[0], 1))
         """
-        self.up_pool3 = up_pooling(filters[2], filters[1], kernel_size=2) #BEN: added Kernel size myself
+        self.up_pool3 = up_pooling(filters[2], filters[1], kernel_size=2)  # BEN: added Kernel size myself
         self.conv3 = block(filters[2], filters[1], downsample=self.downsample3)
         self.conv4 = block(filters[1], filters[0], downsample=self.downsample4)
 
@@ -314,15 +314,15 @@ class Masking2(nn.Module):
 
     def forward(self, x):
         x1 = self.conv1(x)
-        #print("x1 shape here is: ", x1.size()) # 256x12x12      
+        # print("x1 shape here is: ", x1.size()) # 256x12x12
         p1 = self.down_pooling(x1)
-        #print("p1 shape here is: ", p1.size()) # 256x6x6
+        # print("p1 shape here is: ", p1.size()) # 256x6x6
         x2 = self.conv2(p1)
-        #print("x2 shape here is: ", x2.size()) # 512x6x6
+        # print("x2 shape here is: ", x2.size()) # 512x6x6
         x3 = self.up_pool3(x2)
-        #print("x3 shape here is: ", x3.size()) # 256x12x12
+        # print("x3 shape here is: ", x3.size()) # 256x12x12
         x3 = torch.cat([x3, x1], dim=1)
-        #print("x3 shape here is: ", x3.size()) # 512x12x12
+        # print("x3 shape here is: ", x3.size()) # 512x12x12
         x3 = self.conv3(x3)
 
         x4 = self.conv4(x3)

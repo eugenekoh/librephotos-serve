@@ -1,9 +1,10 @@
-import pic
-import sic
-import fer
-from flask import Flask, jsonify, request
 import cv2
 import numpy as np
+from flask import Flask, jsonify, request
+
+import fer
+import pic
+import sic
 
 app = Flask(__name__)
 
@@ -12,7 +13,7 @@ app = Flask(__name__)
 def generate_pic():
     # get image
     file = request.files['image'].read()
-    npimg = np.fromstring(file, np.uint8)
+    npimg = np.frombuffer(file, np.uint8)
     img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
     return jsonify(pic.generate(img, request.form['personality']))
 

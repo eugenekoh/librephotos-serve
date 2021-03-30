@@ -75,7 +75,7 @@ def butd_raw_output(raw_image):
         )
         probs = outputs.predict_probs()[0]
         boxes = outputs.predict_boxes()[0]
-        #boxes = proposal_boxes[0].tensor
+        # boxes = proposal_boxes[0].tensor
 
         # NMS
         for nms_thresh in np.arange(0.5, 1.0, 0.1):
@@ -131,5 +131,6 @@ def get_image_features(img):
     instances, features = butd_raw_output(img)
     features = add_spatial_features(instances, features)
     labels = get_labels(instances)
+    logger.info(labels)
 
     return features, labels
